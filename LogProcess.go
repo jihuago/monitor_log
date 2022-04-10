@@ -1,30 +1,23 @@
 package monitor_log
 
 import (
-	"github.com/jihuago/monitor_log/reader"
-	"github.com/jihuago/monitor_log/writer"
 	"strings"
 )
 
-type LogProcess struct {
-	Rc chan string
-	Wc chan string
-	Reader reader.Reader
-	Writer writer.Writer
+type logProcess struct {
+	Rch chan string
+	Wch chan string
 }
 
-func (lp *LogProcess) Process()  {
-	data := <- lp.Rc
-	lp.Wc <- strings.ToUpper(data)
-}
-
-func Process() *LogProcess {
-	lp := &LogProcess{
-		Rc: make(chan string),
-		Wc: make(chan string),
-		Reader: &reader.Nginx_access_reader{},
-		Writer: &writer.Write_to_influxdb{},
+func (lp *logProcess) Process(ch chan string)  {
+	for v := range ch {
+		lp.Wch <- strings.ToUpper(v)
 	}
+}
 
-	return lp
+func New() *logProcess {
+	return &logProcess{
+		Rch: make(chan string),
+		Wch: make(chan string),
+	}
 }
