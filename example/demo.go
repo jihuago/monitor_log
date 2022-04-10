@@ -2,15 +2,24 @@ package main
 
 import (
 	"github.com/jihuago/monitor_log"
-	"time"
+	"github.com/jihuago/monitor_log/reader"
+	"github.com/jihuago/monitor_log/writer"
 )
 
 func main()  {
-	lp := monitor_log.Process()
+	rd := reader.NewAccessReader()
+	rd.SetPath("./example/access.txt")
 
-	go lp.Reader.Read(lp.Rc)
-	go lp.Process()
-	go lp.Writer.Write(lp.Wc)
+	wd := &writer.Write_to_influxdb{}
 
-	time.Sleep(1 * time.Second)
+	lp := monitor_log.New()
+
+	// 步骤：读、处理、写入
+	go rd.Read(lp.Rch)
+	go lp.Process(lp.Rch)
+	go wd.Write(lp.Wch)
+
+	for true {
+
+	}
 }
