@@ -1,23 +1,19 @@
 package monitor_log
 
-import (
-	"strings"
-)
+import "github.com/jihuago/monitor_log/handler"
 
-type logProcess struct {
-	Rch chan string
-	Wch chan string
+type log_handle struct {
+	context *handler.LogContext
+	strategy handler.LogHandlerStrategy
 }
 
-func (lp *logProcess) Process(ch chan string)  {
-	for v := range ch {
-		lp.Wch <- strings.ToUpper(v)
+func NewLogHandle(logCtx *handler.LogContext, strategy handler.LogHandlerStrategy) *log_handle {
+	return &log_handle{
+		context: logCtx,
+		strategy: strategy,
 	}
 }
 
-func New() *logProcess {
-	return &logProcess{
-		Rch: make(chan string),
-		Wch: make(chan string),
-	}
+func (logHandle *log_handle) Process()  {
+	logHandle.strategy.Process(logHandle.context)
 }
